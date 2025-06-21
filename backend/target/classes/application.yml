@@ -1,0 +1,149 @@
+spring:
+  application:
+    name: trading-sandbox
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/trading_sandbox
+    username: trading_user
+    password: secure_password
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+  
+  security:
+    user:
+      name: admin
+      password: admin123
+  
+  # Temporarily disable Redis completely
+  # redis:
+  #   host: localhost
+  #   port: 6379
+  #   timeout: 2000ms
+  
+  cache:
+    type: simple
+
+server:
+  port: 8080
+
+# JWT Configuration
+jwt:
+  secret: your_super_secret_jwt_key_for_trading_sandbox_2024
+  expiration: 86400000 # 24 hours in milliseconds
+
+# Trading Configuration
+trading:
+  simulation:
+    enabled: true
+    speed-multiplier: 1.0 # Speed of simulation (1.0 = real-time)
+    max-positions: 10
+    default-capital: 100000.0
+  
+  risk:
+    max-drawdown: 0.20 # 20% maximum drawdown
+    max-position-size: 0.10 # 10% of portfolio per position
+    stop-loss: 0.05 # 5% stop loss
+  
+  market-data:
+    provider: alpha-vantage
+    api-key: demo_key
+    cache-duration: 300 # 5 minutes
+
+# Logging
+logging:
+  level:
+    com.trading: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/trading-sandbox.log
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      base-path: /api/actuator
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: false
+
+# Swagger/OpenAPI
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  info:
+    title: Trading Sandbox API
+    description: Cloud Algorithmic Trading Sandbox API
+    version: 1.0.0
+    contact:
+      name: Trading Sandbox Team
+      email: support@tradingsandbox.com
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  
+  datasource:
+    url: jdbc:postgresql://postgres:5432/trading_sandbox
+    username: ${POSTGRES_USER:trading_user}
+    password: ${POSTGRES_PASSWORD:secure_password}
+  
+  # Temporarily disable Redis for docker profile
+  # redis:
+  #   host: redis
+  #   port: 6379
+  
+  cache:
+    type: simple
+
+jwt:
+  secret: ${JWT_SECRET:your_super_secret_jwt_key_for_trading_sandbox_2024}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+trading:
+  market-data:
+    api-key: ${ALPHA_VANTAGE_API_KEY:demo_key}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  
+  security:
+    user:
+      name: ${ADMIN_USERNAME:admin}
+      password: ${ADMIN_PASSWORD:admin123}
+
+logging:
+  level:
+    com.trading: INFO
+    org.springframework.security: WARN 

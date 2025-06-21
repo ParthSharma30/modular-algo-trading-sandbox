@@ -1,0 +1,31 @@
+{
+  "name": "RSI Mean Reversion",
+  "description": "A mean reversion strategy that buys when RSI is oversold and sells when RSI is overbought.",
+  "strategyType": "MEAN_REVERSION",
+  "parameters": {
+    "rsiPeriod": 14,
+    "oversoldThreshold": 30,
+    "overboughtThreshold": 70,
+    "positionSize": 50,
+    "symbol": "GOOGL"
+  },
+  "rules": [
+    {
+      "condition": "rsi < oversoldThreshold",
+      "action": "BUY",
+      "quantity": "positionSize",
+      "description": "Buy when RSI is oversold"
+    },
+    {
+      "condition": "rsi > overboughtThreshold",
+      "action": "SELL",
+      "quantity": "ALL",
+      "description": "Sell all positions when RSI is overbought"
+    }
+  ],
+  "riskManagement": {
+    "stopLoss": 0.03,
+    "takeProfit": 0.08,
+    "maxPositionSize": 0.05
+  }
+} 
